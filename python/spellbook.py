@@ -20,7 +20,7 @@ Poison = ( "Poison", "DWWFWD")
 Paralysis = ("Paralysis", "FFF")
 SummonTroll = ("Summon Troll", "FPSFW",Summon)
 Fireball = ("Fireball", "FSSDD")
-Shield = ("Shield", "P", Protection)
+_Shield = ("Shield", "P", Protection)
 RemoveEnchantment = ("Remove Enchantment", "PDWP", Protection)
 Invisibility = ("Invisibility", "PPws")
 CharmMonster = ("Charm Monster", "PSDD")
@@ -50,10 +50,101 @@ CounterSpell2 = ("Counter Spell", "WWS", Protection)
 StandardBook = [
 DispelMagic, SummonIceElemental, SummonFireElemental, MagicMirror, LightningBolt, CureHeavyWounds,
 CureLightWounds, Amnesia, Confusion, Disease, Blindness, DelayEffect, RaiseDead, Poison, Paralysis,
-SummonTroll, Fireball, Shield, RemoveEnchantment, Invisibility, CharmMonster, CharmPerson, SummonOgre,
+SummonTroll, Fireball, _Shield, RemoveEnchantment, Invisibility, CharmMonster, CharmPerson, SummonOgre,
 FingerOfDeath, Haste, MagicMissile, SummonGoblin, AntiSpell, TimeStop1, TimeStop2, ResistCold,
 Fear, FireStorm, LightningBolt, CauseLightWounds, SummonGiant, CauseHeavyWounds, CounterSpell, IceStorm,
 ResistHeat, Protection, CounterSpell]
+
+# gestures and moves
+from enum import Enum
+
+class Gestures(Enum):
+    Proffer,Digit,Finger,Snap,Wave,Clap,Stab,Empty = range(8)
+
+    @classmethod
+    def from_string(cls,s):
+        s = s.lower()
+        if s in ['p',"proffer"]:
+            return Gestures.Proffer
+        elif s in ['d',"digit"]:
+            return Gestures.Digit 
+        elif s in ['f',"finger"]: 
+            return Gestures.Finger
+        elif s in ['s',"snap"]: 
+            return Gestures.Snap
+        elif s in ['w',"wave"]:
+            return  Gestures.Wave
+        elif s in ['c',"clap"]:
+            return Gestures.Clap
+        elif s in ['>',"stab"]: 
+            return Gestures.Stab
+        elif s in [' ','','empty']:
+            return Gestures.Empty
+        else: 
+            raise ValueError(f"unknown gesture: " + s)
+
+    @classmethod
+    def symbol(cls, g):
+        if g == Gestures.Proffer:
+            return "P"
+        elif g == Gestures.Digit:
+            return "D"
+        elif g == Gestures.Finger:
+            return "F"
+        elif g == Gestures.Snap:
+            return "S"
+        elif g == Gestures.Wave:
+            return "W"
+        elif g == Gestures.Clap:
+            return "c"
+        elif g == Gestures.Stab:
+            return ">"
+        elif g == Gestures.Empty:
+            return "-"
+        else: 
+            raise ValueError(f"unknown gesture {g}")
+
+    def __str__(self):
+        if self == Gestures.Proffer:
+            return "Proffer"
+        elif self == Gestures.Digit:
+            return "Digit"
+        elif self == Gestures.Finger:
+            return "Finger"
+        elif self == Gestures.Snap:
+            return "Snap"
+        elif self == Gestures.Wave:
+            return "Wave"
+        elif self == Gestures.Clap:
+            return "Clap"
+        elif self == Gestures.Stab:
+            return "Stab"
+        elif self == Gestures.Empty:
+            return "Empty"
+        else: 
+            raise ValueError(f"unknown gesture {self}")
+
+class Mage:
+    pass
+
+class Spell:
+    name="Generic Spell"
+    gestures=""
+    type="Generic"
+
+    @classmethod
+    def cast(cls, mage,target=None):
+        print(f"casting {cls.name}")
+
+class Shield(Spell):
+    name = _Shield[0]
+    gestures = _Shield[1]
+    type = _Shield[2]
+
+    @classmethod
+    def cast(cls,mage,target=None):
+        super().cast(mage,target)
+
 
 def prefixes(s) :
     """ return all prefixes for a string"""
@@ -61,28 +152,59 @@ def prefixes(s) :
     ret.sort(key = len,reverse = True)
     return ret
 
-def conjuring(gestures, spell):
+def is_conjuring(gestures, spell):
     """ return true if the gestures match the spell up to the length of the spell -1.
     If the gestures match the spell then the spell is conjured and this will return False"""
+    count = gestures_to_conjure(gestures,spell)
+    return count > 0 and count < len(spell)
+    # gestureCount = len(gestures)
+    # spellLength = len(spell)
 
-    gestureCount = len(gestures)
-    spellLength = len(spell)
-
-    if gestureCount <= spellLength:
-        return gestureCount if spell.startswith(gestures) else -1
+    # if gestureCount <= spellLength:
+    #     return gestureCount if spell.startswith(gestures) else -1
     
-    if gestures.endswith(spell):
-        print("spell should be conjured")
-        return spellLength
+    # if gestures.endswith(spell):
+    #     print("spell should be conjured")
+    #     return spellLength
 
-    spell_prefixes = prefixes(spell)
-    for p in spell_prefixes:
+    # spell_prefixes = prefixes(spell)
+    # for p in spell_prefixes:
+    #     if gestures.endswith(p):
+    #         return len(p)
+
+    # return -1
+
+def is_conjured(gestures,spell):
+    return gestures_to_conjure(gestures,spell) == 0
+
+def gestures_to_conjure(gestures, spell):
+    """ return the number of gestures needed to conjure
+    the spell. Returns a value between 0 and len(spell).
+    0 indicates that the spell is cast; len(spell) indicates
+    that the spell has not started to be conjured"""
+
+    #test the prefixes in descending order of length
+    #to see if there are any matches...
+    for p in prefixes(spell):
         if gestures.endswith(p):
-            return len(p)
+            return len(spell) - len(p)
+    
+    # ... no matches? then we have all of the gestures
+    # to cast the spell
+    return len(spell)
 
-    return -1
+def cast(mage, spell, target=None):
+    pass
+
+
 
 if __name__ == '__main__':
+    for g in ['Proffer','Digit','Finger','Snap','Wave','Clap','Stab','Empty','']:
+        print(Gestures.from_string(g))
+
+    Shield.cast(None,None)
+
+    exit(0)
     SpellBook = [DispelMagic,SummonIceElemental,SummonFireElemental,MagicMirror,LightningBolt]
     leftHand = ""
     rightHand = ""
@@ -115,14 +237,14 @@ if __name__ == '__main__':
         
         for name,spell in SpellBook:
             # print(name, spell)
-            conjureLeftHand = conjuring(leftHand,spell)
+            conjureLeftHand = is_conjuring(leftHand,spell)
             if conjureLeftHand > 0:
                 if conjureLeftHand == len(spell):
                     print(f"{name} conjured!!!")
                 else: 
                     print(f"conjuring {name} with left hand")
 
-            conjureRightHand = conjuring(rightHand,spell)
+            conjureRightHand = is_conjuring(rightHand,spell)
             if conjureRightHand > 0:
                 if conjureRightHand == len(spell):
                     print(f"{name} conjured!!!")
