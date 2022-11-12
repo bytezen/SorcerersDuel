@@ -136,6 +136,18 @@ class Spell:
     def cast(cls, mage,target=None):
         print(f"casting {cls.name}")
 
+    def __init__(self, owner, target=None):
+        self._duration = 1
+        self._owner = owner
+        self._target = target
+        self._active = True
+    @property
+    def active(self): return self._active    
+
+    @active.setter 
+    def active(self,v):
+        self._active = v
+
 class Shield(Spell):
     name = _Shield[0]
     gestures = _Shield[1]
@@ -145,6 +157,8 @@ class Shield(Spell):
     def cast(cls,mage,target=None):
         super().cast(mage,target)
 
+    def __init__(self, owner, target):
+        super().__init__(owner, target)
 
 def prefixes(s) :
     """ return all prefixes for a string"""
@@ -199,54 +213,57 @@ def cast(mage, spell, target=None):
 
 
 if __name__ == '__main__':
-    for g in ['Proffer','Digit','Finger','Snap','Wave','Clap','Stab','Empty','']:
-        print(Gestures.from_string(g))
+    # developing the spell resolution logic
 
-    Shield.cast(None,None)
+    spells_cast = [_Shield, DispelMagic,Invisibility,DispelMagic]
+    spells_in_effect = []
 
-    exit(0)
-    SpellBook = [DispelMagic,SummonIceElemental,SummonFireElemental,MagicMirror,LightningBolt]
-    leftHand = ""
-    rightHand = ""
-
-
-            
-    # print(SpellBook)
-    # print(prefixes(LightningBolt[1]) )
-    # print(prefixes(SummonFireElemental[1]) )
-    # exit(0)
-
-    while(True):
-        lh = (input("input left gesture: ")).upper()
-        rh = (input("input right gesture: ")).upper()
-
-
-        if lh == rh: 
-            if rh == 'P':
-                print('surrendered')
-                break
-            elif rh == 'C':
-                leftHand += lh.lower()
-                rightHand += rh.lower()
+    # dispel magic
+    # 2 dispel magic cancel out
+    if DispelMagic in spells_cast:
+        if len([ x for x in spells_cast if x == DispelMagic]) % 2 == 0:
+            print('dispel magic cancels out')
         else:
-            rightHand += '-' if rh == 'C' else rh
-            leftHand += '-' if lh == 'C' else lh
+            print('dispel magic is cast and takes effect')
+            #DispelMagic.cast()
 
-        print(f"left hand: {leftHand}") 
-        print(f"right hand: {rightHand}") 
-        
-        for name,spell in SpellBook:
-            # print(name, spell)
-            conjureLeftHand = is_conjuring(leftHand,spell)
-            if conjureLeftHand > 0:
-                if conjureLeftHand == len(spell):
-                    print(f"{name} conjured!!!")
-                else: 
-                    print(f"conjuring {name} with left hand")
+    shield = Shield(None, None)
+    print(shield.active)
+    shield.active = False
+    print(shield.active)
 
-            conjureRightHand = is_conjuring(rightHand,spell)
-            if conjureRightHand > 0:
-                if conjureRightHand == len(spell):
-                    print(f"{name} conjured!!!")
-                else: 
-                    print(f"conjuring {name} with right hand")
+    def testGestureInput():
+        while(True):
+            lh = (input("input left gesture: ")).upper()
+            rh = (input("input right gesture: ")).upper()
+
+
+            if lh == rh: 
+                if rh == 'P':
+                    print('surrendered')
+                    break
+                elif rh == 'C':
+                    leftHand += lh.lower()
+                    rightHand += rh.lower()
+            else:
+                rightHand += '-' if rh == 'C' else rh
+                leftHand += '-' if lh == 'C' else lh
+
+            print(f"left hand: {leftHand}") 
+            print(f"right hand: {rightHand}") 
+            
+            for name,spell in SpellBook:
+                # print(name, spell)
+                conjureLeftHand = is_conjuring(leftHand,spell)
+                if conjureLeftHand > 0:
+                    if conjureLeftHand == len(spell):
+                        print(f"{name} conjured!!!")
+                    else: 
+                        print(f"conjuring {name} with left hand")
+
+                conjureRightHand = is_conjuring(rightHand,spell)
+                if conjureRightHand > 0:
+                    if conjureRightHand == len(spell):
+                        print(f"{name} conjured!!!")
+                    else: 
+                        print(f"conjuring {name} with right hand")
