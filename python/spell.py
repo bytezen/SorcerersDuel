@@ -1,35 +1,114 @@
+import logging 
+from gesture import Gesture
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+# Create handler
+c_handler = logging.StreamHandler()
+f_handler = logging.FileHandler(f"{__name__}.log")
+c_handler.setLevel(logging.DEBUG)
+f_handler.setLevel(logging.DEBUG)
+# Create formatters and add it to handlers
+c_format = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+f_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+c_handler.setFormatter(c_format)
+f_handler.setFormatter(f_format)
+# Add handlers to the logger
+logger.addHandler(c_handler)
+logger.addHandler(f_handler)
+# logging.basicConfig(level=logging.DEBUG, filename="game.log", filemode='a',
+    # format='%(name)s:%(levelname)s: %(message)s')
+
 class Spell:
-    name="Generic Spell"
-    gestures=""
-    type="Generic"
+    Protection = "Protection"
+    Damage = "Damage"
+    Enchantment = "Enchantment"
+    Summoning = "Summoning"
 
-    @classmethod
-    def cast(cls, mage,target=None):
-        print(f"casting {cls.name}")
-
-    def __init__(self, owner, target=None):
+    def __init__(self, conjurer, target=None):
+        print(f"the target is now:  {target}")
         self._duration = 1
-        self._owner = owner
-        self._target = target
-        self._active = True
-    @property
-    def active(self): return self._active    
+        self.conjurer = conjurer
+        self.target = target
 
-    @active.setter 
-    def active(self,v):
-        self._active = v
+    def cast(self):
+        raise NotImplemented("subclasses should implement")
+
+    # @property
+    # def active(self): return self._active    
+
+
+    # @property
+    # def gestures(self): return self._gestures
+
+    def is_conjuring(self, gs ):
+        """ return true if the gestures match the spell up to the length of the spell -1.
+        If the gestures match the spell then the spell is conjured and this will return False"""
+        count = self.gestures_to_conjure(gs)
+        return count > 0 and count < len(self.code)
+
+    def is_conjured(self,gs):
+        return self.gestures_to_conjure(gs) == 0
+
+    def gestures_to_conjure(self,gs):
+        """ return the number of gestures needed to conjure
+        the spell. Returns a value between 0 and len(spell).
+        0 indicates that the spell is cast; len(spell) indicates
+        that the spell has not started to be conjured"""
+
+        #test the prefixes in descending order of length
+        #to see if there are any matches...
+        for p in prefixes(self.code):
+            if gs.endswith(p):
+                return len(self.code) - len(p)
+        
+        # ... no matches? then we have all of the gestures
+        # to cast the spell
+        return len(self.code)
+
+def prefixes(s) :
+    """ return all prefixes for a string"""
+    ret = [ s[ slice(0,i)] for i in range(1,len(s)+1)]
+    ret.sort(key = len,reverse = True)
+    return ret
+
 
 class Shield(Spell):
-    name = _Shield[0]
-    gestures = _Shield[1]
-    type = _Shield[2]
+    name = "Shield"
+    gestures = 'P'
+    type = Spell.Protection
 
-    @classmethod
-    def cast(cls,mage,target=None):
-        super().cast(mage,target)
+    def __init__(self, conjurer, target=None):
+        target = conjurer if target is None else target
+        super().__init__(conjurer, target)
 
-    def __init__(self, owner, target):
-        super().__init__(owner, target)
+    def cast(self):
+        logger.info(f"{self.conjurer} casting {self.name} @ {self.target}")
+        self.target.shielded = True
+
+class DispelMagic(Spell):
+    name = "Dispell Magic"
+    gestures ="cDPW"
+    type = Spell.Protection
+
+    def __init__(self, conjurer):
+        super().__init__(conjurer)
+
+    def cast(self):
+        # remove all enchantments from everyone in the world
+        # monsters should be removed after they attack.
+        self.conjurer.MagicDispelled = True
+
+class MagicMissile(Spell):
+    name = "Magic Missile"
+    gestures = "SD"
+    type = Spell.Damage
+
+    def __init__(self, conjurer, target):
+        super().__init__(conjurer,target)
+
+    def cast(self):
+        self.target.HitByMissile = True
 
 # Develop spell logic below
 # TODO: move to another module
@@ -43,7 +122,7 @@ def cast_dispel_magic(world, conjurer, target=None):
     As with a Counter Spell it also acts as a Shield for its subject.
     """
 
-    print("casting ... dispel_magic")
+    logging.info("casting ... dispel_magic")
 
     # remove all spells cast in this turn
     # remove enchantments from everyone
@@ -60,7 +139,7 @@ def cast_counter_spell(world, conjurer, target=None):
     if target is None:
         target = conjurer
 
-    print(f"{conjurer} casts counter spell @ {target}")
+    logging.info(f"{conjurer} casts counter spell @ {target}")
     target.countering = True
     target.shielding = True
 
@@ -74,7 +153,7 @@ def cast_summon_goblin(world, conjurer, target):
     The summoning spell cannot be cast at an elemental, and if cast at something which doesn't 
     exist, the spell has no effect.
     """
-    print(conjurer,"casting ... summon goblin")
+    logging.info(conjurer,"casting ... summon goblin")
     goblin = Goblin(conjurer,target)
     conjurer.add_monster(goblin)
     world.add_monster(goblin)
@@ -85,8 +164,17 @@ def cast_magic_mirror(world, conjurer, target=None):
     if target is None:
         target = conjurer
 
-    print(conjurer + 'casting magic mirror at' + target)
+    logging.info(conjurer + 'casting magic mirror at' + target)
     target.reflecting = True
 
 def cast_raise_dead(world, conjurer, target=None):
     pass
+
+def process_spells(characters):
+    pass
+
+if __name__ == '__main__':
+    import character
+
+    m = character.Mage('m')
+    s = Shield(m)
