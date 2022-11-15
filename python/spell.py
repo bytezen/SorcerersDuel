@@ -87,7 +87,7 @@ class Shield(Spell):
         self.target.shielded = True
 
 class DispelMagic(Spell):
-    name = "Dispell Magic"
+    name = "Dispel Magic"
     gestures ="cDPW"
     type = Spell.Protection
 
@@ -109,6 +109,34 @@ class MagicMissile(Spell):
 
     def cast(self):
         self.target.HitByMissile = True
+
+class MagicMirror(Spell):
+    name = "Magic Mirror"
+    gestures = "cw"
+    type = Spell.Protection
+
+    def __init__(self, conjurer, target):
+        super().__init__(conjurer,target)
+
+    def cast(self):
+        self.target.Reflecting = True
+
+class CounterSpell(Spell):
+    name = "Counter Spell"
+    gestures,classic = ["WPP","WWS"]
+    type = Spell.Protection
+
+    def __init__(self, conjurer, target):
+        super().__init__(conjurer,target)
+
+    def cast(self):
+        self.target.Countering = True
+
+class Amnesia(Spell):
+    pass
+
+class Confusion(Spell):
+    pass
 
 # Develop spell logic below
 # TODO: move to another module

@@ -77,7 +77,7 @@ class Being:
         # self.CharmedLeft
         # self.ColdResistant
         # self.Confused
-        # self.Countering
+        self.Countering = False
         # self.Dead
         # self.DelayPending
         # self.Fast

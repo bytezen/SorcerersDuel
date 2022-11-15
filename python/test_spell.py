@@ -27,6 +27,7 @@ def game():
     return Game()
 
 def test_gesture_shield(mage1):
+    assert SpellBook.Shield.name == "Shield"
     # mage1.left_gesture('P')
     mage1.gesture(('P','-'))
     shield = SpellBook.Shield(mage1)
@@ -60,6 +61,8 @@ def test_cast_shield(mage1,mage2):
 #     pass
 
 def test_gesture_magic_missile(mage1, mage2):
+    assert SpellBook.MagicMissile.name == "Magic Missile"
+
     for gesture in SpellBook.MagicMissile.gestures:
         mage1.gesture((gesture,'-'))
 
@@ -77,6 +80,8 @@ def test_cast_magic_missile(mage1, mage2):
     assert mage2.HitByMissile == True
 
 def test_gesture_dispel_magic(mage1,mage2):
+    assert SpellBook.DispelMagic.name == "Dispel Magic"
+
     for idx,gesture in enumerate(SpellBook.DispelMagic.gestures):
         # starts with clap
         if idx == 0:
@@ -100,3 +105,36 @@ def test_cast_dispel_magic(mage1):
 
     spell.cast()
     assert mage1.MagicDispelled
+
+def test_conjure_magic_mirror(mage1):
+    assert SpellBook.MagicMirror.name == "Magic Mirror"
+
+    mage1.gesture(('C','C'))
+    mage1.gesture(('W','W'))
+
+    assert mage1.LH == SpellBook.MagicMirror.gestures
+    assert mage1.LH == SpellBook.MagicMirror.gestures
+
+def test_cast_magic_mirror(mage1, mage2):
+    spell = SpellBook.MagicMirror(mage1,mage2)
+    spell.cast()
+    assert mage2.Reflecting
+
+def test_conjure_counter_spell(mage1,mage2):
+    assert SpellBook.CounterSpell.name == "Counter Spell"
+
+    mage1.gesture(('W','-'))
+    mage1.gesture(('P','-'))
+    mage1.gesture(('P','-'))
+    assert mage1.LH == SpellBook.CounterSpell.gestures
+
+    mage2.gesture(('-','W'))
+    mage2.gesture(('-','P'))
+    mage2.gesture(('-','P'))
+    assert mage2.RH == SpellBook.CounterSpell.gestures
+
+def test_cast_counter_spell(mage1,mage2):
+    spell = SpellBook.CounterSpell(mage1,mage1)
+    spell.cast()
+    assert mage1.Countering == True
+
