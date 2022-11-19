@@ -1,10 +1,11 @@
 import character
 import spell
 
+
 class Game:
     def __init__(self):
-        self.mages = {}
-        self.monsters = {}
+        self.mages = set()
+        self.monsters = set()
         self.round = 0
 
     def add_mage(self, mage):
@@ -18,6 +19,9 @@ class Game:
 
     def everyone(self):
         return self.mages.union(self.monsters)
+
+    def is_melee(self): 
+        return len(self.mages) > 2
 
 def process_round(mages=None, creatures=None):
     pass
