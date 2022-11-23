@@ -25,6 +25,17 @@ class Spell:
     Enchantment = "Enchantment"
     Summoning = "Summoning"
 
+    @classmethod
+    def get_cast_spell(cls, gestures):
+        """
+        return the Spell names that match the tail of gestures or None
+        """
+        # for spell in SpellBook:
+            # print(f"{spell.name} with gestures: {spell.gestures} {spell.is_conjured(gestures)}")
+        
+        return [ spell for spell in SpellBook if spell.is_conjured(gestures)]
+
+
     def __init__(self, conjurer, target=None):
         print(f"the target is now:  {target}")
         self._duration = 1
@@ -41,16 +52,19 @@ class Spell:
     # @property
     # def gestures(self): return self._gestures
 
-    def is_conjuring(self, gs ):
-        """ return true if the gestures match the spell up to the length of the spell -1.
-        If the gestures match the spell then the spell is conjured and this will return False"""
-        count = self.gestures_to_conjure(gs)
-        return count > 0 and count < len(self.code)
+    # @classmethod
+    # # def is_conjuring(self, gs ):
+    #     """ return true if the gestures match the spell up to the length of the spell -1.
+    #     If the gestures match the spell then the spell is conjured and this will return False"""
+    #     count = self.gestures_to_conjure(gs)
+    #     return count > 0 and count < len(self.gestures)
 
-    def is_conjured(self,gs):
-        return self.gestures_to_conjure(gs) == 0
+    @classmethod
+    def is_conjured(cls,gs):
+        return cls.gestures_to_conjure(gs) == 0
 
-    def gestures_to_conjure(self,gs):
+    @classmethod
+    def gestures_to_conjure(cls,gs):
         """ return the number of gestures needed to conjure
         the spell. Returns a value between 0 and len(spell).
         0 indicates that the spell is cast; len(spell) indicates
@@ -58,13 +72,13 @@ class Spell:
 
         #test the prefixes in descending order of length
         #to see if there are any matches...
-        for p in prefixes(self.code):
+        for p in prefixes(cls.gestures):
             if gs.endswith(p):
-                return len(self.code) - len(p)
+                return len(cls.gestures) - len(p)
         
-        # ... no matches? then we have all of the gestures
+        # ... no matches? then we have to do all of the gestures
         # to cast the spell
-        return len(self.code)
+        return len(cls.gestures)
 
 def prefixes(s) :
     """ return all prefixes for a string"""
@@ -133,10 +147,16 @@ class CounterSpell(Spell):
         self.target.Countering = True
 
 class Amnesia(Spell):
-    pass
+    name = "Amnesia"
+    gestures = "DPP"
+    type = Spell.Enchantment
 
 class Confusion(Spell):
-    pass
+    name = "Confusion"
+    gestures = "DSF"
+    type = Spell.Enchantment
+
+SpellBook = [Shield,DispelMagic,MagicMissile,MagicMirror,CounterSpell,Amnesia,Confusion]
 
 # Develop spell logic below
 # TODO: move to another module
@@ -202,7 +222,4 @@ def process_spells(characters):
     pass
 
 if __name__ == '__main__':
-    import character
-
-    m = character.Mage('m')
-    s = Shield(m)
+    print(f"Gesturing 'DPP' --> {Spell.get_cast_spell('DPP')}")
