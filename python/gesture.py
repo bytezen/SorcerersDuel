@@ -18,6 +18,15 @@ Gesture = Enum(
 		# ("p","2 handed proffer"),
     ])
 
+Valid = ['F','P','S','W','D','>','-','C']
 
+Description =  {'F': 'wriggles the fingers of',
+                'P': 'proffers the palm of',
+                'S': 'snaps the fingers of',
+                'W': 'waves',
+                'D': 'points the digit of',
+                'C': 'claps with',
+                '>': 'stabs with',
+                '-': 'does nothing with'}
 def randomGesture():
 	return choice(['F','P','S','W','D','>','-','C'])

@@ -61,34 +61,44 @@ class Being:
     def die(self):
         self._hp = 0
 
+    def enchantments_off():
+        raise NotImplementedError()
+
+    def is_enchanted(self):
+        return any([self.afraid,self.anti_spelled,self.blind, self.charmed, self.coldResistant,
+        self.confused, self.delayPending, self.fast, self.forgetful,
+        self.heatResistant,self.invisible,self.paralyzed,self.permanencyPending, 
+        self.poisoned,self.sick])
+
     def reset_state(self):
         self.afraid = False
+        self.anti_spelled = False
         # self.BHDuration # both hands duration
         # self.BHSave  # both hands save
         # self.FireDuration
         # self.FireSpell
         # self.FireTarget
-        # self.Blind
+        self.blind = False
         # self.BlindTurns
         # self.BothSpell
         # self.BothTarget
-        # self.Charmed
+        self.charmed = False
         # self.CharmedRight
         # self.CharmedLeft
-        # self.ColdResistant
-        # self.Confused
-        self.Countering = False
+        self.coldResistant = False
+        self.confused = False
+        self.countering = False
         # self.Dead
-        # self.DelayPending
-        # self.Fast
-        # self.Forgetful
+        self.delayPending = False
+        self.fast = False
+        self.forgetful = False
         # self.HastenedTurn
-        # self.HeatResistant
+        self.heatResistant = False
         # self.HeavyWoundsCured
         # self.HitByFireBall
         # self.HitByLightning
         self.HitByMissile = False
-        # self.Invisible
+        self.invisible = False
         # self.InvisibleTurns
         self.LastGestureLH = None
         self.LastGestureRH = None
@@ -99,12 +109,12 @@ class Being:
         # self.LeftTarget
         # self.LightWoundsCured
         self.MagicDispelled = False
-        # self.Paralyzed
+        self.paralyzed = False
         # self.Paralyser
         # self.ParalyzedLeft
         # self.ParalyzedRight
-        # self.PermanencyPending
-        # self.Poisoned
+        self.permanencyPending = False
+        self.poisoned = False
         # self.Quote
         self.RH = ""
         # self.RHDuration
@@ -118,11 +128,11 @@ class Being:
         # self.SavedTarget
         self.shielded = False
         # self.ShortLightningUsed
-        # self.Sick
+        self.sick = False
         # self.State
         # self.Surrendered
         # self.Target
-        # self.TimeStopped
+        self.timeStopped = False
         # self.TimeStoppedTurn
         self.reflecting = False 
         self.countering = False 
@@ -136,6 +146,8 @@ class Mage(Being):
         super().__init__(name)
         self._buffer = []
         self._slaves = []
+        self.left_spell = None
+        self.right_spell = None
 
     @property
     def spell_buffer(self):
@@ -160,15 +172,12 @@ class Mage(Being):
         self.RH += R
 
     def left_gesture(self, gesture):
-        pass
         self.LastGestureLH = gesture
 
     def right_gesture(self,gesture):
-        pass
         self.LastGestureRH = gesture
 
     def commit_gestures(self):
-        pass
         # double handed gesture that is not None
         if self.LastGestureLH == self.LastGestureRH and self.LastGestureLH is not None:
             self.LH += self.LastGestureLH.lower()

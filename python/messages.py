@@ -21,9 +21,8 @@ RH: %s
 
 class Messages:
 
-    def __init__(self,game):
-        self.game = game
-        self.mages = list(self.game.mages)
+    def __init__(self):
+        pass
 
     def welcome(self):
         if len(self.mages) == 2:
@@ -31,19 +30,31 @@ class Messages:
         else:
             return " and ".join( [ ", ".join(self.mages[:-1]), self.mages[-1]] )
 
-    def start(self):
-        if self.game.is_melee():
-            msg = ", ".join(self.mages[:-1])
-            msg = " and ".join([msg, self.mages[-1]])
-            return (start_melee % msg)
-        else:
-            return (start_duel % tuple(self.mages))
+    def start(self, mages):
+        msg =""
+        if len(mages) == 2:
+            msg = """
+            The Council of Elders welcomes you to a battle of skill and wit
+            between %s and %s
+            """ % tuple(mages)
 
-    def gesture(self, mage, gesture):
-        return make_gesture % (mage, gesture[0], gesture[1])
+        print(msg)
+
+    def gesture(self, mage):
+        msg = """
+        %s gestures 
+        %s with his left hand 
+        %s with his right hand
+        """
+        print(msg % (mage, mage.LH[-1], mage.RH[-1]))
 
     def gesture_history(self, mage):
-        return (mage.LH, mage.RH)
+        msg = """
+        %s's gestures have been:
+        LH: %s
+        RH: %s
+        """ 
+        print(msg % (mage, " ".join(mage.LH), " ".join(mage.RH))) 
 
 if __name__ =='__main__':
     import game
@@ -57,8 +68,14 @@ if __name__ =='__main__':
     g.add_mage( steve )
     g.add_mage( doera )
 
-    Msg = Messages(g)
-    print(Msg.start())
+    Msg = Messages()
 
+    Msg.start(g.mages)
     steve.gesture(('P','S'))
-    print(Msg.gesture(steve, ('P','S')))
+    steve.gesture(('P','S'))
+    steve.gesture(('P','S'))
+    Msg.gesture(steve)
+    Msg.gesture_history(steve)
+
+
+    # print(Msg.gesture(steve, ('P','S')))
